@@ -30,7 +30,7 @@ const Index = () => {
       });
     } catch (error) {
       console.error('Error analyzing audio:', error);
-      // Handle error
+      // Toast notification is handled in the API function
     } finally {
       setIsAnalyzing(false);
     }
@@ -39,46 +39,55 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto py-6 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1">
-            <h2 className="text-xl font-semibold mb-4">Upload Audio</h2>
-            <AudioUploader onUpload={handleFileUpload} isLoading={isAnalyzing} />
-            <p className="text-sm text-muted-foreground mt-4 text-center">
-              Upload an audio file to extract musical characteristics and generate creative AI prompts.
-            </p>
-          </div>
-          
-          <div className="md:col-span-2">
-            <Tabs defaultValue="analysis" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="analysis">Analysis Results</TabsTrigger>
-                <TabsTrigger value="prompt" disabled={!analysisResults}>Prompt Generator</TabsTrigger>
-              </TabsList>
-              <TabsContent value="analysis">
-                {!analysisResults && !isAnalyzing ? (
-                  <Card className="p-6 text-center text-muted-foreground">
-                    <p>Upload an audio file to see analysis results here.</p>
-                  </Card>
-                ) : (
+      <main className="container mx-auto py-12 px-4 md:px-6 relative z-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-1">
+              <div className="space-y-2 mb-4">
+                <h2 className="text-2xl font-bold text-foreground">Create AI Music</h2>
+                <p className="text-muted-foreground">Upload your audio and get AI-ready prompts</p>
+              </div>
+              
+              <AudioUploader onUpload={handleFileUpload} isLoading={isAnalyzing} />
+              
+              <div className="mt-6 p-4 bg-secondary/50 rounded-lg border border-border">
+                <h3 className="font-medium mb-2">How it works</h3>
+                <ol className="list-decimal pl-5 space-y-1 text-sm text-muted-foreground">
+                  <li>Upload any audio file (MP3, WAV, etc.)</li>
+                  <li>Our AI analyzes musical characteristics</li>
+                  <li>Results are stored for later reference</li>
+                  <li>Generate AI music prompts from the analysis</li>
+                </ol>
+              </div>
+            </div>
+            
+            <div className="md:col-span-2">
+              <Tabs defaultValue="analysis" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    Analysis Results
+                  </TabsTrigger>
+                  <TabsTrigger value="prompt" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    AI Prompt Generator
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="analysis" className="mt-0">
                   <AnalysisResults data={analysisResults} isLoading={isAnalyzing} />
-                )}
-              </TabsContent>
-              <TabsContent value="prompt">
-                <PromptGenerator analysisData={analysisResults} />
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
+                <TabsContent value="prompt" className="mt-0">
+                  <PromptGenerator analysisData={analysisResults} />
+                </TabsContent>
+              </Tabs>
+              
+              {!isAnalyzing && analysisResults && (
+                <div className="mt-6 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Analysis ID: {analysisResults.id} • Processed on {new Date(analysisResults.created_at).toLocaleString()}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        
-        <div className="mt-12 text-sm text-muted-foreground">
-          <h3 className="font-medium mb-2">How it works:</h3>
-          <ol className="list-decimal pl-5 space-y-1">
-            <li>Upload an audio file (MP3, WAV, etc.)</li>
-            <li>Our backend analyzes the audio to extract musical features</li>
-            <li>Results are stored in Supabase database</li>
-            <li>Generate a creative prompt for AI music generation tools like Suno</li>
-          </ol>
         </div>
       </main>
     </div>

@@ -1,26 +1,87 @@
 
 import { supabase } from './supabase';
 import { AudioAnalysisResult } from '@/types';
+import { toast } from '@/components/ui/use-toast';
 
-// For now, we'll mock the Python backend analysis
-// In a real implementation, this would call your Python API
+// Base URL for our Python backend
+// For local development, you'll need to update this to your actual Python server URL
+const PYTHON_API_URL = 'http://localhost:8000';
+
 export async function analyzeAudio(file: File): Promise<AudioAnalysisResult> {
-  // This is a mock function that simulates audio analysis
-  // In a real implementation, you would upload the file to your Python backend
-  // and receive the analysis results
+  try {
+    // Try to use the Python backend if available
+    return await analyzeWithPythonBackend(file);
+  } catch (error) {
+    console.error('Python backend error:', error);
+    toast({
+      title: "Backend Service Unavailable",
+      description: "Using fallback mock analysis. Set up the Python backend for accurate analysis.",
+      variant: "destructive"
+    });
+    
+    // Fall back to mock analysis if Python backend is unavailable
+    return await mockAnalyzeAudio(file);
+  }
+}
 
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+async function analyzeWithPythonBackend(file: File): Promise<AudioAnalysisResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // First check if the API is alive
+  try {
+    const healthCheck = await fetch(`${PYTHON_API_URL}/health`, { 
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Only wait 2 seconds for health check
+      signal: AbortSignal.timeout(2000)
+    });
+    
+    if (!healthCheck.ok) {
+      throw new Error('Python backend is not available');
+    }
+  } catch (error) {
+    throw new Error('Python backend is not available');
+  }
+
+  // If health check passes, make the full request
+  const response = await fetch(`${PYTHON_API_URL}/analyze`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to analyze audio: ${response.statusText}`);
+  }
+
+  const result = await response.json();
   
-  // Mock analysis result
+  // Store result in Supabase
+  await storeAnalysisResult(result);
+  
+  return result;
+}
+
+async function mockAnalyzeAudio(file: File): Promise<AudioAnalysisResult> {
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  // Mock analysis result with more realistic values
+  const keys = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab'];
+  const scales = ['Major', 'Minor', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Locrian'];
+  const rhythms = ['Four on the floor', 'Syncopated', 'Trap', 'Waltz', 'Breakbeat', 'Hip hop', 'Swing'];
+  const moods = ['Melancholic', 'Upbeat', 'Dramatic', 'Chill', 'Energetic', 'Dreamy', 'Nostalgic', 'Aggressive'];
+  
   const mockResult: AudioAnalysisResult = {
-    id: Math.random().toString(36).substring(7),
+    id: crypto.randomUUID(),
     filename: file.name,
-    key: ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab'][Math.floor(Math.random() * 12)],
-    scale: Math.random() > 0.5 ? 'Major' : 'Minor',
-    bpm: Math.floor(Math.random() * 60) + 80, // Random BPM between 80-140
-    rhythm: ['Four on the floor', 'Syncopated', 'Trap', 'Waltz', 'Breakbeat'][Math.floor(Math.random() * 5)],
-    mood: ['Melancholic', 'Upbeat', 'Dramatic', 'Chill', 'Energetic'][Math.floor(Math.random() * 5)],
+    key: keys[Math.floor(Math.random() * keys.length)],
+    scale: scales[Math.floor(Math.random() * scales.length)],
+    bpm: Math.floor(Math.random() * 80) + 70, // Random BPM between 70-150
+    rhythm: rhythms[Math.floor(Math.random() * rhythms.length)],
+    mood: moods[Math.floor(Math.random() * moods.length)],
     created_at: new Date().toISOString(),
   };
 

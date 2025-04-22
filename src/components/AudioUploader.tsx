@@ -1,22 +1,23 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, FileAudio } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { toast } from '@/components/ui/use-toast';
+import { Upload, Music2, Loader2 } from 'lucide-react';
 
 interface AudioUploaderProps {
   onUpload: (file: File) => void;
   isLoading: boolean;
 }
 
-export default function AudioUploader({ onUpload, isLoading }: AudioUploaderProps) {
+const AudioUploader = ({ onUpload, isLoading }: AudioUploaderProps) => {
   const [dragActive, setDragActive] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Handle drag events
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
@@ -24,100 +25,108 @@ export default function AudioUploader({ onUpload, isLoading }: AudioUploaderProp
     }
   };
 
-  // Handle drop event
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (isAudioFile(file)) {
-        setSelectedFile(file);
-        onUpload(file);
-      } else {
-        alert('Please upload an audio file (MP3, WAV, etc.)');
-      }
-    }
+    
+    const files = e.dataTransfer.files;
+    handleFiles(files);
   };
 
-  // Handle file input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (isAudioFile(file)) {
-        setSelectedFile(file);
-        onUpload(file);
-      } else {
-        alert('Please upload an audio file (MP3, WAV, etc.)');
-      }
+    if (e.target.files) {
+      handleFiles(e.target.files);
     }
   };
 
-  // Check if file is an audio file
-  const isAudioFile = (file: File) => {
-    return file.type.startsWith('audio/');
+  const handleFiles = (files: FileList) => {
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    const fileType = file.type;
+    
+    if (!fileType.startsWith('audio/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an audio file (MP3, WAV, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    onUpload(file);
+  };
+
+  const handleButtonClick = () => {
+    inputRef.current?.click();
   };
 
   return (
-    <Card className="w-full">
-      <CardContent className="pt-6">
-        <div
-          className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-8 transition-colors ${
-            dragActive ? 'border-primary bg-primary/10' : 'border-muted'
-          }`}
-          onDragEnter={handleDrag}
-          onDragOver={handleDrag}
-          onDragLeave={handleDrag}
-          onDrop={handleDrop}
-        >
-          {selectedFile ? (
-            <div className="text-center">
-              <FileAudio className="h-16 w-16 text-primary mx-auto mb-4" />
-              <p className="text-lg font-medium mb-2">{selectedFile.name}</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 rounded-full animate-bounce bg-primary"></div>
-                  <div className="h-4 w-4 rounded-full animate-bounce bg-primary" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="h-4 w-4 rounded-full animate-bounce bg-primary" style={{ animationDelay: '0.4s' }}></div>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedFile(null);
-                  }}
-                >
-                  Choose another file
-                </Button>
-              )}
-            </div>
+    <Card
+      className={`relative border-2 border-dashed rounded-xl transition-all duration-200 p-6 ${
+        dragActive 
+          ? 'border-primary bg-primary/5' 
+          : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+      } card-hover`}
+      onDragEnter={handleDrag}
+      onDragOver={handleDrag}
+      onDragLeave={handleDrag}
+      onDrop={handleDrop}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        id="audio-upload"
+        accept="audio/*"
+        onChange={handleChange}
+        className="hidden"
+      />
+      
+      <div className="flex flex-col items-center justify-center gap-4 py-4">
+        <div className="h-16 w-16 rounded-full bg-secondary flex items-center justify-center">
+          {isLoading ? (
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
           ) : (
-            <>
-              <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-1">Drag and drop your audio file</h3>
-              <p className="text-sm text-muted-foreground mb-4">or click to browse files</p>
-              <Button disabled={isLoading} asChild>
-                <label className="cursor-pointer">
-                  Upload Audio File
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    className="hidden"
-                    onChange={handleChange}
-                    disabled={isLoading}
-                  />
-                </label>
-              </Button>
-              <p className="text-xs text-muted-foreground mt-4">Supports MP3, WAV, and other audio formats</p>
-            </>
+            <Music2 className="h-8 w-8 text-primary" />
           )}
         </div>
-      </CardContent>
+
+        <div className="space-y-1 text-center">
+          <h3 className="text-lg font-medium">Upload Audio File</h3>
+          <p className="text-sm text-muted-foreground">
+            Drag and drop an audio file or click to browse
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            Supports MP3, WAV, FLAC, and more
+          </p>
+        </div>
+        
+        {!isLoading ? (
+          <Button 
+            onClick={handleButtonClick}
+            className="relative group overflow-hidden"
+            disabled={isLoading}
+          >
+            <div className="absolute inset-0 w-full h-full bg-primary transition-transform duration-300 transform translate-y-full group-hover:translate-y-0"></div>
+            <div className="relative flex items-center gap-2 transition-colors group-hover:text-primary-foreground">
+              <Upload className="w-4 h-4" />
+              Browse Files
+            </div>
+          </Button>
+        ) : (
+          <div className="waveform">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="waveform-bar"></div>
+            ))}
+          </div>
+        )}
+        
+        {isLoading && <p className="text-sm animate-pulse">Analyzing audio...</p>}
+      </div>
     </Card>
   );
-}
+};
+
+export default AudioUploader;

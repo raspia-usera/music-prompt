@@ -45,6 +45,39 @@ export type Database = {
         }
         Relationships: []
       }
+      audio_analysis: {
+        Row: {
+          bpm: number
+          created_at: string
+          filename: string
+          id: string
+          key: string
+          mood: string
+          rhythm: string
+          scale: string
+        }
+        Insert: {
+          bpm: number
+          created_at?: string
+          filename: string
+          id?: string
+          key: string
+          mood: string
+          rhythm: string
+          scale: string
+        }
+        Update: {
+          bpm?: number
+          created_at?: string
+          filename?: string
+          id?: string
+          key?: string
+          mood?: string
+          rhythm?: string
+          scale?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

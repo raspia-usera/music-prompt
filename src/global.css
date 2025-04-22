@@ -1,0 +1,142 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-family: 'Quicksand', sans-serif;
+  
+  /* Earth tone color palette with a splash of color */
+  --background: 44 36% 97%;
+  --foreground: 20 6% 20%;
+  
+  --card: 44 20% 95%;
+  --card-foreground: 20 6% 20%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 6% 20%;
+  
+  --primary: 158 64% 42%; /* Teal splash of color */
+  --primary-foreground: 0 0% 98%;
+  
+  --secondary: 30 50% 92%;
+  --secondary-foreground: 24 9% 26%;
+  
+  --muted: 30 25% 88%;
+  --muted-foreground: 25 5% 45%;
+  
+  --accent: 28 40% 88%;
+  --accent-foreground: 24 9% 24%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 28 12% 86%;
+  --input: 28 12% 86%;
+  --ring: 158 64% 42%;
+  
+  --radius: 0.8rem;
+}
+
+.dark {
+  --background: 20 20% 8%;
+  --foreground: 30 10% 90%;
+  
+  --card: 20 20% 12%;
+  --card-foreground: 30 10% 90%;
+  
+  --popover: 20 20% 10%;
+  --popover-foreground: 30 10% 90%;
+  
+  --primary: 158 64% 32%;
+  --primary-foreground: 0 0% 98%;
+  
+  --secondary: 30 15% 22%;
+  --secondary-foreground: 30 10% 90%;
+  
+  --muted: 25 15% 18%;
+  --muted-foreground: 30 10% 70%;
+  
+  --accent: 28 15% 24%;
+  --accent-foreground: 30 10% 90%;
+  
+  --destructive: 0 84% 50%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 20 15% 20%;
+  --input: 20 15% 20%;
+  --ring: 158 64% 32%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-wide;
+  }
+}
+
+/* Custom decorative elements */
+.wave-divider {
+  height: 4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' opacity='.25' class='shape-fill' fill='%23075E54' transform='rotate(180)'%3E%3C/path%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' opacity='.5' class='shape-fill' fill='%23075E54' transform='rotate(180)'%3E%3C/path%3E%3Cpath d='M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z' class='shape-fill' fill='%23075E54' transform='rotate(180)'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+}
+
+.animated-bg {
+  background: linear-gradient(120deg, var(--accent), var(--secondary), var(--muted));
+  background-size: 300% 300%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Audio waveform animation */
+.waveform {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  gap: 3px;
+}
+
+.waveform-bar {
+  width: 3px;
+  border-radius: 3px;
+  background-color: hsl(var(--primary));
+  animation: sound 0ms -800ms linear infinite alternate;
+}
+
+@keyframes sound {
+  0% { height: 10px; }
+  100% { height: 30px; }
+}
+
+.waveform-bar:nth-child(1) { animation-duration: 474ms; }
+.waveform-bar:nth-child(2) { animation-duration: 433ms; }
+.waveform-bar:nth-child(3) { animation-duration: 407ms; }
+.waveform-bar:nth-child(4) { animation-duration: 458ms; }
+.waveform-bar:nth-child(5) { animation-duration: 400ms; }
+.waveform-bar:nth-child(6) { animation-duration: 427ms; }
+.waveform-bar:nth-child(7) { animation-duration: 441ms; }
+.waveform-bar:nth-child(8) { animation-duration: 419ms; }
