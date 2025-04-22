@@ -39,7 +39,7 @@ const AnalysisResults = ({ data, isLoading }: AnalysisResultsProps) => {
 
   return (
     <Card className="border shadow-sm overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-secondary to-accent/40 pb-2">
+      <CardHeader className="bg-gradient-to-r from-primary/20 to-accent/30 pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl">Analysis Results</CardTitle>
           <span className="text-sm text-muted-foreground flex items-center">
@@ -85,7 +85,7 @@ const AnalysisItem = ({
   label: string;
   value: string;
 }) => (
-  <div className="p-3 border rounded-lg bg-card/50">
+  <div className="p-3 border rounded-lg bg-card/50 border-primary/10">
     <div className="flex items-center gap-2 mb-1">
       {icon}
       <span className="text-sm font-medium text-muted-foreground">{label}</span>

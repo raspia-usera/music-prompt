@@ -7,6 +7,7 @@ import PromptGenerator from '@/components/PromptGenerator';
 import { analyzeAudio } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
+import { Music } from 'lucide-react';
 
 const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -44,19 +45,23 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1">
               <div className="space-y-2 mb-4">
-                <h2 className="text-2xl font-bold text-foreground">Create AI Music</h2>
-                <p className="text-muted-foreground">Upload your audio and get AI-ready prompts</p>
+                <h2 className="text-2xl font-bold text-foreground">Create AI Samples</h2>
+                <p className="text-muted-foreground">Upload audio to generate Suno-ready prompts</p>
               </div>
               
               <AudioUploader onUpload={handleFileUpload} isLoading={isAnalyzing} />
               
-              <div className="mt-6 p-4 bg-secondary/50 rounded-lg border border-border">
-                <h3 className="font-medium mb-2">How it works</h3>
+              <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <Music className="w-4 h-4 mr-2 text-primary" />
+                  How it works
+                </h3>
                 <ol className="list-decimal pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Upload any audio file (MP3, WAV, etc.)</li>
-                  <li>Our AI analyzes musical characteristics</li>
-                  <li>Results are stored for later reference</li>
-                  <li>Generate AI music prompts from the analysis</li>
+                  <li>Upload your audio file (MP3, WAV, etc.)</li>
+                  <li>Our AI analyzes the musical characteristics</li>
+                  <li>Customize your prompt settings</li>
+                  <li>Generate complementary sample prompts for Suno</li>
+                  <li>Copy and paste into Suno.com</li>
                 </ol>
               </div>
             </div>
@@ -68,7 +73,7 @@ const Index = () => {
                     Analysis Results
                   </TabsTrigger>
                   <TabsTrigger value="prompt" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    AI Prompt Generator
+                    Suno Prompt Creator
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="analysis" className="mt-0">

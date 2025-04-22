@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -8,7 +7,7 @@
 :root {
   --font-family: 'Quicksand', sans-serif;
   
-  /* Earth tone color palette with a splash of color */
+  /* Marine blue and golden color palette */
   --background: 44 36% 97%;
   --foreground: 20 6% 20%;
   
@@ -18,7 +17,7 @@
   --popover: 0 0% 100%;
   --popover-foreground: 20 6% 20%;
   
-  --primary: 158 64% 42%; /* Teal splash of color */
+  --primary: 210 64% 32%; /* Marine blue */
   --primary-foreground: 0 0% 98%;
   
   --secondary: 30 50% 92%;
@@ -27,7 +26,7 @@
   --muted: 30 25% 88%;
   --muted-foreground: 25 5% 45%;
   
-  --accent: 28 40% 88%;
+  --accent: 42 80% 60%; /* Golden yellow */
   --accent-foreground: 24 9% 24%;
   
   --destructive: 0 84% 60%;
@@ -35,7 +34,7 @@
   
   --border: 28 12% 86%;
   --input: 28 12% 86%;
-  --ring: 158 64% 42%;
+  --ring: 210 64% 32%;
   
   --radius: 0.8rem;
 }
@@ -50,7 +49,7 @@
   --popover: 20 20% 10%;
   --popover-foreground: 30 10% 90%;
   
-  --primary: 158 64% 32%;
+  --primary: 210 64% 32%; /* Marine blue */
   --primary-foreground: 0 0% 98%;
   
   --secondary: 30 15% 22%;
@@ -59,7 +58,7 @@
   --muted: 25 15% 18%;
   --muted-foreground: 30 10% 70%;
   
-  --accent: 28 15% 24%;
+  --accent: 42 80% 60%; /* Golden yellow */
   --accent-foreground: 30 10% 90%;
   
   --destructive: 0 84% 50%;
@@ -67,7 +66,7 @@
   
   --border: 20 15% 20%;
   --input: 20 15% 20%;
-  --ring: 158 64% 32%;
+  --ring: 210 64% 32%;
 }
 
 @layer base {
