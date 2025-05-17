@@ -37,7 +37,7 @@ const AudioUrlInput = ({ onSubmit, isLoading }: AudioUrlInputProps) => {
       toast({
         title: "URL may not be supported",
         description: "Please ensure the URL links to an audio file or a supported streaming platform",
-        variant: "warning",
+        variant: "default", // Changed from "warning" to "default"
       });
     }
     
