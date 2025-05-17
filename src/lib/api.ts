@@ -7,7 +7,7 @@ import { toast } from '@/components/ui/use-toast';
 // For local development, you'll need to update this to your actual Python server URL
 const PYTHON_API_URL = 'http://localhost:8000';
 
-export async function analyzeAudio(file: File): Promise<AudioAnalysisResult> {
+export async function analyzeAudio(file: File | string): Promise<AudioAnalysisResult> {
   try {
     // Try to use the Python backend if available
     return await analyzeWithPythonBackend(file);
@@ -24,10 +24,7 @@ export async function analyzeAudio(file: File): Promise<AudioAnalysisResult> {
   }
 }
 
-async function analyzeWithPythonBackend(file: File): Promise<AudioAnalysisResult> {
-  const formData = new FormData();
-  formData.append('file', file);
-
+async function analyzeWithPythonBackend(fileOrUrl: File | string): Promise<AudioAnalysisResult> {
   // First check if the API is alive
   try {
     const healthCheck = await fetch(`${PYTHON_API_URL}/health`, { 
@@ -47,10 +44,27 @@ async function analyzeWithPythonBackend(file: File): Promise<AudioAnalysisResult
   }
 
   // If health check passes, make the full request
-  const response = await fetch(`${PYTHON_API_URL}/analyze`, {
-    method: 'POST',
-    body: formData,
-  });
+  let response;
+  
+  if (typeof fileOrUrl === 'string') {
+    // Handle URL-based analysis
+    response = await fetch(`${PYTHON_API_URL}/analyze-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: fileOrUrl }),
+    });
+  } else {
+    // Handle file-based analysis
+    const formData = new FormData();
+    formData.append('file', fileOrUrl);
+    
+    response = await fetch(`${PYTHON_API_URL}/analyze`, {
+      method: 'POST',
+      body: formData,
+    });
+  }
 
   if (!response.ok) {
     throw new Error(`Failed to analyze audio: ${response.statusText}`);
@@ -64,9 +78,32 @@ async function analyzeWithPythonBackend(file: File): Promise<AudioAnalysisResult
   return result;
 }
 
-async function mockAnalyzeAudio(file: File): Promise<AudioAnalysisResult> {
+async function mockAnalyzeAudio(fileOrUrl: File | string): Promise<AudioAnalysisResult> {
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  // Extract filename from URL or use the file name
+  let filename = '';
+  if (typeof fileOrUrl === 'string') {
+    // Extract filename from URL
+    const url = new URL(fileOrUrl);
+    const pathSegments = url.pathname.split('/');
+    filename = pathSegments[pathSegments.length - 1] || url.hostname;
+    
+    // Clean up filename if it contains query parameters
+    filename = filename.split('?')[0];
+    
+    // If it's from a streaming platform, create a more descriptive filename
+    if (fileOrUrl.includes('youtube.com') || fileOrUrl.includes('youtu.be')) {
+      filename = `youtube_audio_${new Date().getTime()}`;
+    } else if (fileOrUrl.includes('spotify.com')) {
+      filename = `spotify_track_${new Date().getTime()}`;
+    } else if (fileOrUrl.includes('soundcloud.com')) {
+      filename = `soundcloud_track_${new Date().getTime()}`;
+    }
+  } else {
+    filename = fileOrUrl.name;
+  }
   
   // Mock analysis result with more realistic values
   const keys = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab'];
@@ -76,7 +113,7 @@ async function mockAnalyzeAudio(file: File): Promise<AudioAnalysisResult> {
   
   const mockResult: AudioAnalysisResult = {
     id: crypto.randomUUID(),
-    filename: file.name,
+    filename: filename,
     key: keys[Math.floor(Math.random() * keys.length)],
     scale: scales[Math.floor(Math.random() * scales.length)],
     bpm: Math.floor(Math.random() * 80) + 70, // Random BPM between 70-150

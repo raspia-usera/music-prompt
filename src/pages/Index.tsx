@@ -1,13 +1,12 @@
 
 import { useState } from 'react';
 import Header from '@/components/Header';
-import AudioUploader from '@/components/AudioUploader';
 import AnalysisResults, { AnalysisData } from '@/components/AnalysisResults';
 import PromptGenerator from '@/components/PromptGenerator';
 import { analyzeAudio } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
 import { Music } from 'lucide-react';
+import AudioInputToggle from '@/components/AudioInputToggle';
 
 const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -36,6 +35,30 @@ const Index = () => {
       setIsAnalyzing(false);
     }
   };
+  
+  const handleUrlSubmit = async (url: string) => {
+    setIsAnalyzing(true);
+    setAnalysisResults(null);
+    
+    try {
+      const result = await analyzeAudio(url);
+      setAnalysisResults({
+        key: result.key,
+        scale: result.scale,
+        bpm: result.bpm,
+        rhythm: result.rhythm,
+        mood: result.mood,
+        filename: result.filename,
+        id: result.id,
+        created_at: result.created_at,
+      });
+    } catch (error) {
+      console.error('Error analyzing audio from URL:', error);
+      // Toast notification is handled in the API function
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,10 +69,14 @@ const Index = () => {
             <div className="md:col-span-1">
               <div className="space-y-2 mb-4">
                 <h2 className="text-2xl font-bold text-foreground">Create AI Samples</h2>
-                <p className="text-muted-foreground">Upload audio to generate Suno-ready prompts</p>
+                <p className="text-muted-foreground">Upload audio or enter URL to generate Suno-ready prompts</p>
               </div>
               
-              <AudioUploader onUpload={handleFileUpload} isLoading={isAnalyzing} />
+              <AudioInputToggle 
+                onUpload={handleFileUpload} 
+                onUrlSubmit={handleUrlSubmit}
+                isLoading={isAnalyzing} 
+              />
               
               <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <h3 className="font-medium mb-2 flex items-center">
@@ -57,7 +84,7 @@ const Index = () => {
                   How it works
                 </h3>
                 <ol className="list-decimal pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Upload your audio file (MP3, WAV, etc.)</li>
+                  <li>Upload your audio file or enter URL</li>
                   <li>Our AI analyzes the musical characteristics</li>
                   <li>Customize your prompt settings</li>
                   <li>Generate complementary sample prompts for Suno</li>
