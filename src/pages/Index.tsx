@@ -7,17 +7,29 @@ import { analyzeAudio } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Music } from 'lucide-react';
 import AudioInputToggle from '@/components/AudioInputToggle';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisData | null>(null);
+  const [analysisStep, setAnalysisStep] = useState<string>('');
 
   const handleFileUpload = async (file: File) => {
     setIsAnalyzing(true);
     setAnalysisResults(null);
     
     try {
+      setAnalysisStep('Reading audio file...');
+      
+      setTimeout(() => setAnalysisStep('Extracting audio features...'), 1000);
+      setTimeout(() => setAnalysisStep('Analyzing key and scale...'), 3000);
+      setTimeout(() => setAnalysisStep('Detecting rhythm patterns...'), 5000);
+      setTimeout(() => setAnalysisStep('Analyzing mood characteristics...'), 7000);
+      
       const result = await analyzeAudio(file);
+      
+      setAnalysisStep('Saving results...');
+      
       setAnalysisResults({
         key: result.key,
         scale: result.scale,
@@ -28,11 +40,21 @@ const Index = () => {
         id: result.id,
         created_at: result.created_at,
       });
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Analyzed ${file.name} successfully!`,
+      });
     } catch (error) {
       console.error('Error analyzing audio:', error);
-      // Toast notification is handled in the API function
+      toast({
+        title: "Analysis Error",
+        description: "There was a problem analyzing your audio file. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzing(false);
+      setAnalysisStep('');
     }
   };
   
@@ -41,7 +63,17 @@ const Index = () => {
     setAnalysisResults(null);
     
     try {
+      setAnalysisStep('Fetching audio from URL...');
+      
+      setTimeout(() => setAnalysisStep('Extracting audio features...'), 2000);
+      setTimeout(() => setAnalysisStep('Analyzing key and scale...'), 4000);
+      setTimeout(() => setAnalysisStep('Detecting rhythm patterns...'), 6000);
+      setTimeout(() => setAnalysisStep('Analyzing mood characteristics...'), 8000);
+      
       const result = await analyzeAudio(url);
+      
+      setAnalysisStep('Saving results...');
+      
       setAnalysisResults({
         key: result.key,
         scale: result.scale,
@@ -52,11 +84,21 @@ const Index = () => {
         id: result.id,
         created_at: result.created_at,
       });
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Analyzed audio from URL successfully!`,
+      });
     } catch (error) {
       console.error('Error analyzing audio from URL:', error);
-      // Toast notification is handled in the API function
+      toast({
+        title: "Analysis Error",
+        description: "There was a problem analyzing the audio from the provided URL. Please try again with a different URL.",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzing(false);
+      setAnalysisStep('');
     }
   };
 
@@ -77,6 +119,15 @@ const Index = () => {
                 onUrlSubmit={handleUrlSubmit}
                 isLoading={isAnalyzing} 
               />
+              
+              {isAnalyzing && analysisStep && (
+                <div className="mt-4 p-3 border border-primary/20 rounded-lg bg-primary/5">
+                  <p className="text-sm font-medium text-foreground">{analysisStep}</p>
+                  <div className="w-full h-1 bg-secondary mt-2 overflow-hidden rounded-full">
+                    <div className="h-full bg-primary animate-progress rounded-full"></div>
+                  </div>
+                </div>
+              )}
               
               <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <h3 className="font-medium mb-2 flex items-center">
