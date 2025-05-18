@@ -110,8 +110,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1">
               <div className="space-y-2 mb-4">
-                <h2 className="text-2xl font-bold text-foreground">Create AI Samples</h2>
-                <p className="text-muted-foreground">Upload audio or enter URL to generate Suno-ready prompts</p>
+                <h2 className="text-2xl font-bold text-foreground">Create Sample Prompts</h2>
+                <p className="text-muted-foreground">Upload audio to generate perfect complementary sample prompts</p>
               </div>
               
               <AudioInputToggle 
@@ -137,9 +137,9 @@ const Index = () => {
                 <ol className="list-decimal pl-5 space-y-1 text-sm text-muted-foreground">
                   <li>Upload your audio file or enter URL</li>
                   <li>Our AI analyzes the musical characteristics</li>
-                  <li>Customize your prompt settings</li>
-                  <li>Generate complementary sample prompts for Suno</li>
-                  <li>Copy and paste into Suno.com</li>
+                  <li>Customize your sample settings</li>
+                  <li>Generate single-instrument sample prompts</li>
+                  <li>Use the prompts with your favorite AI music tool</li>
                 </ol>
               </div>
             </div>
@@ -151,7 +151,7 @@ const Index = () => {
                     Analysis Results
                   </TabsTrigger>
                   <TabsTrigger value="prompt" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Suno Prompt Creator
+                    Sample Prompt Creator
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="analysis" className="mt-0">

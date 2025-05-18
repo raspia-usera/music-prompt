@@ -19,19 +19,12 @@ interface PromptGeneratorProps {
 const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
   const [prompt, setPrompt] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
-  const [promptType, setPromptType] = useState<string>('accompaniment');
+  const [promptType, setPromptType] = useState<string>('melodic');
   const [instrumentType, setInstrumentType] = useState<string>('piano');
   const [complexity, setComplexity] = useState<number>(50);
   const [includeKey, setIncludeKey] = useState<boolean>(true);
   const [includeBpm, setIncludeBpm] = useState<boolean>(true);
   const [includeStyle, setIncludeStyle] = useState<boolean>(true);
-
-  const instrumentOptions = {
-    "melodic": ["piano", "guitar", "violin", "flute", "synth lead"],
-    "harmonic": ["strings", "pad", "organ", "choir", "ensemble"],
-    "rhythmic": ["drums", "percussion", "bass", "beat", "rhythm section"],
-    "textural": ["ambient", "atmospheric", "texture", "soundscape", "drones"]
-  };
 
   // Generate a prompt based on analysis data and user preferences
   const generatePrompt = () => {
@@ -45,34 +38,39 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
     const rhythmDescription = analysisData.rhythm.toLowerCase();
     const moodDescription = analysisData.mood.toLowerCase();
     
-    // Generate different prompt types
-    if (promptType === 'accompaniment') {
-      basePrompt = `Create a ${moodDescription} ${instrumentType} ${promptType} sample ${keyPhrase} ${bpmPhrase} that complements the original track with ${rhythmDescription} patterns`;
-    } else if (promptType === 'countermelody') {
-      basePrompt = `Compose a ${moodDescription} ${instrumentType} countermelody ${keyPhrase} ${bpmPhrase} that weaves around the original melody with ${rhythmDescription} patterns`;
-    } else if (promptType === 'bassline') {
-      basePrompt = `Generate a ${moodDescription} bass line ${keyPhrase} ${bpmPhrase} with ${rhythmDescription} groove to support the original track`;
-    } else if (promptType === 'percussion') {
-      basePrompt = `Create ${moodDescription} percussion elements ${bpmPhrase} featuring ${rhythmDescription} patterns to enhance the existing rhythm`;
-    } else if (promptType === 'atmosphere') {
-      basePrompt = `Design ${moodDescription} atmospheric ${instrumentType} textures ${keyPhrase} that create depth and space around the original audio`;
+    // Generate different prompt types focused on single instrument samples
+    if (promptType === 'melodic') {
+      basePrompt = `Create a ${moodDescription} ${instrumentType} melody ${keyPhrase} ${bpmPhrase} that complements the original audio`;
+    } else if (promptType === 'harmonic') {
+      basePrompt = `Create a ${moodDescription} ${instrumentType} harmonic sample ${keyPhrase} ${bpmPhrase} to enhance the existing audio`;
+    } else if (promptType === 'bass') {
+      basePrompt = `Create a ${moodDescription} bass sample ${keyPhrase} ${bpmPhrase} that supports the rhythm of the original audio`;
+    } else if (promptType === 'percussive') {
+      basePrompt = `Create a ${moodDescription} percussive ${instrumentType} sample ${bpmPhrase} to complement the original audio`;
+    } else if (promptType === 'texture') {
+      basePrompt = `Create a ${moodDescription} atmospheric ${instrumentType} texture ${keyPhrase} to add dimension to the original audio`;
     }
     
-    // Add style based on complexity and user preferences
+    // Add style based on complexity - simplified for sample creation
     if (includeStyle) {
       let styleNote = '';
       if (complexity < 30) {
-        styleNote = "Keep it simple and minimal with sparse notes and plenty of space.";
+        styleNote = "Keep it simple with minimal notes and plenty of space.";
       } else if (complexity < 70) {
-        styleNote = "Balance complexity with clarity, using moderate ornamentation and expression.";
+        styleNote = "Use moderate embellishment while maintaining clarity.";
       } else {
-        styleNote = "Create an intricate arrangement with detailed articulation and dynamic expression.";
+        styleNote = "Add detailed articulation and expression.";
       }
       basePrompt += `. ${styleNote}`;
     }
-
-    // Add suno-specific instruction
-    basePrompt += ` This is for use with Suno.com as a complementary sample to an existing track, not a standalone piece.`;
+    
+    // Add rhythm pattern reference when appropriate
+    if (['melodic', 'bass', 'percussive'].includes(promptType)) {
+      basePrompt += ` with ${rhythmDescription} patterns`;
+    }
+    
+    // Add instruction about purpose - just once, no redundancy
+    basePrompt += ` for use as a complementary single-instrument sample.`;
     
     return basePrompt;
   };
@@ -88,7 +86,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
       setPrompt(generatePrompt());
       toast({
         title: "Prompt Regenerated",
-        description: "Created a new variation based on your settings."
+        description: "Created a new sample prompt variation."
       });
     }
   };
@@ -99,7 +97,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
       setCopied(true);
       toast({
         title: "Copied to clipboard",
-        description: "Prompt is ready to paste into Suno.com"
+        description: "Sample prompt is ready to use"
       });
       
       setTimeout(() => setCopied(false), 2000);
@@ -120,7 +118,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-accent" />
-            <h3 className="text-lg font-medium">Suno Sample Creator</h3>
+            <h3 className="text-lg font-medium">Sample Creator</h3>
           </div>
           <Button 
             variant="ghost" 
@@ -144,12 +142,12 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             className="min-h-[120px] text-md focus-visible:ring-primary"
-            placeholder="Your AI music prompt will appear here..."
+            placeholder="Your sample prompt will appear here..."
           />
           
           <div className="mt-3 space-y-3">
             <p className="text-xs text-muted-foreground">
-              This prompt is optimized for creating complementary samples with Suno.com
+              This prompt is optimized for creating single-instrument samples that complement your original audio
             </p>
             
             <Button 
@@ -183,11 +181,11 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
                 <SelectValue placeholder="Select sample type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="accompaniment">Accompaniment</SelectItem>
-                <SelectItem value="countermelody">Countermelody</SelectItem>
-                <SelectItem value="bassline">Bass Line</SelectItem>
-                <SelectItem value="percussion">Percussion</SelectItem>
-                <SelectItem value="atmosphere">Atmosphere</SelectItem>
+                <SelectItem value="melodic">Melodic Sample</SelectItem>
+                <SelectItem value="harmonic">Harmonic Sample</SelectItem>
+                <SelectItem value="bass">Bass Sample</SelectItem>
+                <SelectItem value="percussive">Percussive Sample</SelectItem>
+                <SelectItem value="texture">Textural Sample</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -209,7 +207,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
                 <SelectItem value="bass">Bass</SelectItem>
                 <SelectItem value="drums">Drums</SelectItem>
                 <SelectItem value="brass">Brass</SelectItem>
-                <SelectItem value="woodwinds">Woodwinds</SelectItem>
+                <SelectItem value="woodwind">Woodwind</SelectItem>
                 <SelectItem value="choir">Choir</SelectItem>
                 <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
@@ -218,7 +216,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
           
           <div className="space-y-2">
             <div className="flex justify-between">
-              <Label htmlFor="complexity">Complexity</Label>
+              <Label htmlFor="complexity">Detail Level</Label>
               <span className="text-sm text-muted-foreground">{complexity}%</span>
             </div>
             <Slider
@@ -255,7 +253,7 @@ const PromptGenerator = ({ analysisData }: PromptGeneratorProps) => {
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="includeStyle" className="cursor-pointer">Include Style Notes</Label>
+              <Label htmlFor="includeStyle" className="cursor-pointer">Include Detail Notes</Label>
               <Switch
                 id="includeStyle"
                 checked={includeStyle}
